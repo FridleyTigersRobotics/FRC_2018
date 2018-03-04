@@ -598,7 +598,8 @@ private:
     //
     // ***************************************************************************
     void SetCubeLiftState(
-        lift_state_t newLiftState
+        lift_state_t newLiftState,
+        double       liftSpeed
     )
     {
         bool const debugCubeLift = false;
@@ -642,16 +643,17 @@ private:
                     std::cout << "MoveUp";
                 }
 
-                cubeLiftMotorSpeed = -1;
+                cubeLiftMotorSpeed = -1 * ( fabs( speed ) );
                 break;
             }
+
             case MoveDown:
             {
                 if ( debugCubeLift )
                 {
                     std::cout << "MoveDown";
                 }
-                cubeLiftMotorSpeed = 0.8;
+                cubeLiftMotorSpeed = 0.8 * ( fabs( speed ) );
                 break;
             }
 
@@ -783,6 +785,8 @@ private:
             std::cout << "   ";
         }
 
+        double const liftSpeed = deadband( stickYPosition, 0.5 );
+
         // Determine the new cube lift state based on the controller input.
         if ( stickYPosition > 0.5 )
         {
@@ -798,7 +802,8 @@ private:
         }
 
         SetCubeLiftState(
-            newLiftState
+            newLiftState,
+            liftSpeed
         );
     }
 
@@ -1748,7 +1753,8 @@ private:
     )
     {
          SetCubeLiftState(
-             liftState
+             liftState,
+             1.0
          );
     }
 

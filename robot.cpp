@@ -221,7 +221,8 @@ public:
              gameData[0]      == 'L'
             )
         {
-            AutoCommandList = DriveTest;
+            // What should this be?
+            // AutoCommandList = DriveTest;
         }
 
 
@@ -231,7 +232,7 @@ public:
              gameData[0]      == 'L'
             )
         {
-            AutoCommandList = AutoCommandList2;
+            AutoCommandList = FromLeftLoadLeftSwitch;
         }
 
         // right position, load right switch
@@ -240,7 +241,7 @@ public:
              gameData[0]      == 'R'
             )
         {
-            AutoCommandList = AutoCommandList3;
+            AutoCommandList = FromRightLoadRightSwitch;
         }
 
         // left position, load left scale
@@ -249,7 +250,7 @@ public:
              gameData[1]      == 'L'
             )
         {
-            AutoCommandList = AutoCommandList4;
+            AutoCommandList = FromLeftLoadLeftScale;
         }
 
         //left position, load right switch
@@ -267,7 +268,7 @@ public:
              gameData[0]      == 'L'
             )
         {
-            AutoCommandList = AutoCommandList6;
+            AutoCommandList = FromMiddleLoadLeftSwitch;
         }
 
         // middle position, load right switch
@@ -276,7 +277,7 @@ public:
              gameData[0]      == 'R'
             )
         {
-            AutoCommandList = AutoCommandList7;
+            AutoCommandList = FromMiddeLoadRightSwitch;
         }
 
         //right position, load left scale
@@ -285,7 +286,7 @@ public:
              gameData[1]      == 'L'
             )
         {
-            AutoCommandList = AutoCommandList15;
+            AutoCommandList = FromRightLoadLeftScale;
         }
 /*
         // right position, load right scale
@@ -413,8 +414,6 @@ public:
         std::cout << "Game Data             : " << gameData << "\n";
 
         std::cout << std::flush;
-
-
     }
 
 
@@ -1015,39 +1014,7 @@ private:
     } auto_command_t;
 
 
-    // Middle position, LLR
-    auto_command_t const AutoCommandList0[12] = \
-    {
-        // Push cube forward
-        { DRIVE, { .drive = { .speed =  0.2, .time = 2.0, .blockCommands = true  } } },
-
-        { WAIT, { .wait = { .time = 2.0  } } },
-        // Move back away from cube to give room for arms to drop down
-        { DRIVE, { .drive = { .speed = -0.2, .time = 2.0, .blockCommands = true  } } },
-        // Move lift up to drop arms down
-        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 2.0, .blockCommands = true  } } },
-        // Move lift back down to ground level
-        {  LIFT, { .lift  = { .liftState = MoveDown, .time = 2.0, .blockCommands = true  } } },
-        // Turn on cube intake
-        {  CUBE, { .cube  = { .speed =  1.0, .time = 2.0, .blockCommands = false } } },
-        // Drive forward to pick up cube
-        { DRIVE, { .drive = { .speed =  0.2, .time = 2.0, .blockCommands = true  } } },
-        // Start lifting cube while we turn and move toward the thingy
-        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.0, .blockCommands = false  } } },
-
-
-        { WAIT, { .wait = { .time = 3.0  } } },
-        // Turn Right 90 degrees
-        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-        // Drive to the thingy
-
-        { WAIT, { .wait = { .time = 10.0  } } },
-        //{ DRIVE, { .drive = { .speed =  0.8, .time = 3.0, .blockCommands = true  } } },
-        // Drop cube
-        //{  CUBE, { .drive = { .speed =  -1.0, .time = 1.0, .blockCommands = true  } } },
-        { FINISHED },
-    };
-
+    //  Debug Autonomous modes
 
     auto_command_t const TurnTest[17] = \
     {
@@ -1108,240 +1075,205 @@ private:
 
 
 
+    // Competition Autonomous Modes
 
-    // Middle position, LLR,
-    auto_command_t const AutoCommandList1[50] = \
+    // Default auto mode, simply do nothing at all.
+    auto_command_t const AutoCommanddDoNothing[50] = \
     {
-        // Push cube forward
-        { DRIVE, { .drive = { .speed =  0.2, .time = 2.0, .blockCommands = true  } } },
-
-        { WAIT, { .wait = { .time = 2.0  } } },
-        // Move back away from cube to give room for arms to drop down
-        { DRIVE, { .drive = { .speed = -0.2, .time = 2.0, .blockCommands = true  } } },
-        // Move lift up to drop arms down
-        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 2.0, .blockCommands = true  } } },
-        // Move lift back down to ground level
-        {  LIFT, { .lift  = { .liftState = MoveDown, .time = 2.0, .blockCommands = true  } } },
-        // Turn on cube intake
-        {  CUBE, { .cube  = { .speed =  1.0, .time = 2.0, .blockCommands = false } } },
-        // Drive forward to pick up cube
-        { DRIVE, { .drive = { .speed =  0.2, .time = 2.0, .blockCommands = true  } } },
-        // Start lifting cube while we turn and move toward the thingy
-        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.0, .blockCommands = false  } } },
-
-
-        { WAIT, { .wait = { .time = 3.0  } } },
-        // Turn Right 90 degrees
-        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-        // Drive to the thingy
-
-        { WAIT, { .wait = { .time = 10.0  } } },
-
-
-
-        { FINISHED },
+       { FINISHED },
     };
 
-// changes
 
     //Left position, Left switch, load
-        auto_command_t const AutoCommandList2[50] = \
-         {
-            { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
-            {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-            {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } },
-            { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } },
-            {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
-            { FINISHED },
-         };
+    auto_command_t const FromLeftLoadLeftSwitch[50] = \
+     {
+        { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
+        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } },
+        { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } },
+        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+        { FINISHED },
+     };
 
     //right position, right switch, load
-        auto_command_t const AutoCommandList3[50] = \
-           {
-               { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } },
-               {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-               {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } },
-               { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } },
-               {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
-               { FINISHED },
-          };
+    auto_command_t const FromRightLoadRightSwitch[50] = \
+       {
+           { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } },
+           {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+           {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } },
+           { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } },
+           {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+           { FINISHED },
+      };
 
 
     //left position, left scale, load
-        auto_command_t const AutoCommandList4[50] = \
-        {
-            { DRIVE, { .drive = { .speed =  0.5, .time = 5.25, .blockCommands = true  } } }, // to center of scale (287.65 inches)
-            {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-            { DRIVE, { .drive = { .speed =  -0.3, .time = 0.25, .blockCommands = true  } } }, // away from scale plate
-            {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 8, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
-            {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
-            { FINISHED },
-       };
+    auto_command_t const FromLeftLoadLeftScale[50] = \
+    {
+        { DRIVE, { .drive = { .speed =  0.5, .time = 5.25, .blockCommands = true  } } }, // to center of scale (287.65 inches)
+        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+        { DRIVE, { .drive = { .speed =  -0.3, .time = 0.25, .blockCommands = true  } } }, // away from scale plate
+        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 8, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
+        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+        { FINISHED },
+   };
 
     //right position, right scale, load
-        auto_command_t const AutoCommandList5[50] = \
-        {
-            { DRIVE, { .drive = { .speed =  0.4, .time = 6.54, .blockCommands = true  } } }, // to center of scale (287.65 inches)
-            {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-            {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 10, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
-            { DRIVE, { .drive = { .speed =  0.2, .time = 0.25, .blockCommands = true  } } }, // towards scale plate
-            {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
-            { FINISHED },
-       };
+    auto_command_t const AutoCommandList5[50] = \
+    {
+        { DRIVE, { .drive = { .speed =  0.4, .time = 6.54, .blockCommands = true  } } }, // to center of scale (287.65 inches)
+        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 10, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
+        { DRIVE, { .drive = { .speed =  0.2, .time = 0.25, .blockCommands = true  } } }, // towards scale plate
+        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+        { FINISHED },
+   };
 
 
 
 
     //middle position, left switch, load
-    auto_command_t const AutoCommandList6[50] = \
-        {
-           { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
-           {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.4, .time = 2.9, .blockCommands = true  } } }, //driving past left switch
-           {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.5, .time = 2.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
-           {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-           {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } },
-           { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } }, //forward, towards switch platform
-           {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
-           { FINISHED },
-        };
+    auto_command_t const FromMiddleLoadLeftSwitch[50] = \
+    {
+       { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
+       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.4, .time = 2.9, .blockCommands = true  } } }, //driving past left switch
+       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.5, .time = 2.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
+       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } },
+       { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } }, //forward, towards switch platform
+       {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+       { FINISHED },
+    };
 
 
     //middle position, right switch, load
-    auto_command_t const AutoCommandList7[50] = \
-        {
-           { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
-           {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.4, .time = 2.9, .blockCommands = true  } } }, //driving past right switch
-           {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.5, .time = 2.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
-           {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-           {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } },
-           { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } }, //forward, towards switch platform
-           {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
-           { FINISHED },
-        };
+    auto_command_t const FromMiddeLoadRightSwitch[50] = \
+    {
+       { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
+       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.4, .time = 2.9, .blockCommands = true  } } }, //driving past right switch
+       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.5, .time = 2.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
+       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } },
+       { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } }, //forward, towards switch platform
+       {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+       { FINISHED },
+    };
 
 
     //middle position, left scale, load
     auto_command_t const AutoCommandList8[50] = \
-         {
-           { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
-           {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //driving past left switch
-           {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
-           { FINISHED },
-         };
+     {
+       { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
+       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //driving past left switch
+       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
+       { FINISHED },
+     };
 
     //middle position, right scale, load
     auto_command_t const AutoCommandList9[50] = \
-          {
+    {
         { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
         {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //driving past left switch
         {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
         { FINISHED },
-         };
+    };
 
     //middle position, auto line only (from left)
     auto_command_t const AutoCommandList10[50] = \
-        {
-           { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
-           {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //driving past left switch
-           {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.4, .time = 2.5, .blockCommands = true  } } },
-           { FINISHED },
-        };
+    {
+       { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
+       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //driving past left switch
+       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.4, .time = 2.5, .blockCommands = true  } } },
+       { FINISHED },
+    };
 
     //middle position, auto line only (from right)
     auto_command_t const AutoCommandList11[50] = \
-        {
-           { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
-           {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //driving past right switch
-           {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.4, .time = 2.5, .blockCommands = true  } } },
-           { FINISHED },
-        };
+    {
+       { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
+       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //driving past right switch
+       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.4, .time = 2.5, .blockCommands = true  } } },
+       { FINISHED },
+    };
 
 
     //left position, right switch, load
     auto_command_t const AutoCommandList12[50] = \
-       {
-           { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
-           {  TURN, { .turn  = { .speed =  0.4, .angle = 90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.5, .time = 3.0, .blockCommands = true  } } }, //across field to right side
-           {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-           {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } }, //might want to do this while it's driving to save time
-           { DRIVE, { .drive = { .speed =  0.2, .time = 1.0, .blockCommands = true  } } }, //towards right switch
-           {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
-           { FINISHED },
-      };
+    {
+       { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
+       {  TURN, { .turn  = { .speed =  0.4, .angle = 90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.5, .time = 3.0, .blockCommands = true  } } }, //across field to right side
+       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } }, //might want to do this while it's driving to save time
+       { DRIVE, { .drive = { .speed =  0.2, .time = 1.0, .blockCommands = true  } } }, //towards right switch
+       {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+       { FINISHED },
+    };
 
 
     //right position, left switch, load
-       auto_command_t const AutoCommandList13[50] = \
-        {
-           { DRIVE, { .drive = { .speed =  0.65, .time = 3.0, .blockCommands = true  } } }, //drive until it passes switch
-           {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.53, .time = 3.0, .blockCommands = true  } } }, //across field to left side
-           {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-           { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },  //until it is in line with switch
-           {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-           {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } }, //might want to do this while it's driving
-           { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } }, //towards right switch
-           {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
-           { FINISHED },
-         };
+    auto_command_t const AutoCommandList13[50] = \
+    {
+       { DRIVE, { .drive = { .speed =  0.65, .time = 3.0, .blockCommands = true  } } }, //drive until it passes switch
+       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.53, .time = 3.0, .blockCommands = true  } } }, //across field to left side
+       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },  //until it is in line with switch
+       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } }, //might want to do this while it's driving
+       { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } }, //towards right switch
+       {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+       { FINISHED },
+    };
 
     //left position, right scale, load
-       auto_command_t const AutoCommandList14[50] = \
-        {
+    auto_command_t const AutoCommandList14[50] = \
+    {
 
-        };
+    };
+
     //right position, left scale, load
-       auto_command_t const AutoCommandList15[50] = \
-            {
-          { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
-          {  TURN, { .turn  = { .speed =  0.4, .angle = -90.0 } } },
-          { DRIVE, { .drive = { .speed =  0.5, .time = 4.0, .blockCommands = true  } } }, //across field to left side
-          {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-          { DRIVE, { .drive = { .speed =  0.5, .time = 1.6, .blockCommands = true  } } }, //towards scale
-          {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-          { DRIVE, { .drive = { .speed =  -0.3, .time = 0.4, .blockCommands = true  } } }, //away left scale
-          {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 9.0, .blockCommands = true  } } }, //might want to do this while it's driving to save time
-          { DRIVE, { .drive = { .speed =  0.2, .time = 1, .blockCommands = true  } } }, //toward left scale
-          {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
-          { FINISHED },
-            };
+    auto_command_t const FromRightLoadLeftScale[50] = \
+    {
+        { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
+        {  TURN, { .turn  = { .speed =  0.4, .angle = -90.0 } } },
+        { DRIVE, { .drive = { .speed =  0.5, .time = 4.0, .blockCommands = true  } } }, //across field to left side
+        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+        { DRIVE, { .drive = { .speed =  0.5, .time = 1.6, .blockCommands = true  } } }, //towards scale
+        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+        { DRIVE, { .drive = { .speed =  -0.3, .time = 0.4, .blockCommands = true  } } }, //away left scale
+        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 9.0, .blockCommands = true  } } }, //might want to do this while it's driving to save time
+        { DRIVE, { .drive = { .speed =  0.2, .time = 1, .blockCommands = true  } } }, //toward left scale
+        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+        { FINISHED },
+    };
 
 
-       //left position, auto line only (if switch and/or scale are on right)
-       auto_command_t const AutoCommandList16[50] = \
-           {
-               { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
-               { FINISHED },
-          };
+    //left position, auto line only (if switch and/or scale are on right)
+    auto_command_t const AutoCommandList16[50] = \
+    {
+        { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
+        { FINISHED },
+    };
 
-       //right position, auto line only (if switch and/or scale are on left)
-       auto_command_t const AutoCommandList17[50] = \
-           {
-               { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
-               { FINISHED },
-          };
-
-
-
-
-    auto_command_t const AutoCommanddDoNothing[50] = \
-        {
-           { FINISHED },
-        };
-
+    //right position, auto line only (if switch and/or scale are on left)
+    auto_command_t const AutoCommandList17[50] = \
+    {
+        { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
+        { FINISHED },
+    };
 
 
 

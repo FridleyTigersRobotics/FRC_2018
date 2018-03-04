@@ -26,6 +26,28 @@
 #include <ADXRS450_Gyro.h>
 
 
+/*
+
+TODO:
+
+Add button to reverse front for driving.
+
+Enable permutations of tested auto modes.
+
+Debug for lift encoder.
+
+Possibly add variable for auto lift timings.
+
+
+
+
+*/
+
+
+
+
+
+
 // ***************************************************************************
 //   Function:    deadband
 //

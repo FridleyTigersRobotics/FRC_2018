@@ -34,7 +34,7 @@ Add button to reverse front for driving.
 
 Enable permutations of tested auto modes.
 
-Debug for lift encoder.
+Debug for lift encoder. (need to verify that it works, should be able to use it to limit the height.)
 
 Possibly add variable for auto lift timings.
 
@@ -216,16 +216,6 @@ public:
         Auto_Initalize();
 
 
-        if ( startingPosition == MIDDLE_POSITION &&
-             autoAction       == CROSS_LINE      &&
-             gameData[0]      == 'L'
-            )
-        {
-            // What should this be?
-            // AutoCommandList = DriveTest;
-        }
-
-
         // left position, load left switch
         if ( startingPosition == LEFT_POSITION &&
              autoAction       == LOAD_SWITCH   &&
@@ -259,7 +249,7 @@ public:
              gameData[0]      == 'R'
             )
         {
-            AutoCommandList = AutoCommandList12;
+            AutoCommandList = FromLeftLoadRightSwitch;
         }
 
         // middle position, load left switch
@@ -288,6 +278,8 @@ public:
         {
             AutoCommandList = FromRightLoadLeftScale;
         }
+
+
 /*
         // right position, load right scale
         if ( startingPosition == RIGHT_POSITION &&
@@ -295,7 +287,7 @@ public:
              gameData[0]      == 'L'
             )
         {
-            AutoCommandList = AutoCommandList5;
+            AutoCommandList = FromRightLoadRightScale;
         }
 
         // middle position, load left scale
@@ -304,7 +296,7 @@ public:
              gameData[0]      == 'L'
             )
         {
-            AutoCommandList = AutoCommandList8;
+            AutoCommandList = FromMiddleLoadLeftScale;
         }
         // middle position, load right scale
         if ( startingPosition == MIDDLE_POSITION &&
@@ -312,7 +304,7 @@ public:
              gameData[0]      == 'L'
             )
         {
-            AutoCommandList = AutoCommandList9;
+            AutoCommandList = FromMiddleLoadRightScale;
         }
 
         //middle position, auto line only (from left)
@@ -321,7 +313,7 @@ public:
              gameData[0]      == 'L'
             )
         {
-            AutoCommandList = AutoCommandList10;
+            AutoCommandList = FromMiddleCrossLeftLine;
         }
 
         //middle position, auto line only (from right)
@@ -330,7 +322,7 @@ public:
              gameData[0]      == 'L'
             )
         {
-            AutoCommandList = AutoCommandList11;
+            AutoCommandList = FromMiddleCrossRightLine;
         }
 
         //right position, load left switch
@@ -339,7 +331,7 @@ public:
              gameData[0]      == 'L'
             )
         {
-            AutoCommandList = AutoCommandList13;
+            AutoCommandList = FromRightLoadLeftSwitch;
         }
 
         //left position, load right scale
@@ -348,7 +340,7 @@ public:
              gameData[0]      == 'R'
             )
         {
-            AutoCommandList = AutoCommandList14;
+            AutoCommandList = FromLeftLoadRightScale;
         }
 
 
@@ -359,7 +351,7 @@ public:
              gameData[0]      == 'L'
             )
         {
-            AutoCommandList = AutoCommandList16;
+            AutoCommandList = FromLeftCrossLeftLine;
         }
 
         //right position, auto line only
@@ -368,7 +360,7 @@ public:
              gameData[0]      == 'L'
             )
         {
-            AutoCommandList = AutoCommandList17;
+            AutoCommandList = FromRightCrossRightLine;
         }
 
 */
@@ -1084,7 +1076,7 @@ private:
     };
 
 
-    //Left position, Left switch, load
+    // Verified
     auto_command_t const FromLeftLoadLeftSwitch[50] = \
      {
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
@@ -1095,7 +1087,7 @@ private:
         { FINISHED },
      };
 
-    //right position, right switch, load
+    // Verified
     auto_command_t const FromRightLoadRightSwitch[50] = \
        {
            { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } },
@@ -1107,7 +1099,7 @@ private:
       };
 
 
-    //left position, left scale, load
+    // Verified
     auto_command_t const FromLeftLoadLeftScale[50] = \
     {
         { DRIVE, { .drive = { .speed =  0.5, .time = 5.25, .blockCommands = true  } } }, // to center of scale (287.65 inches)
@@ -1119,7 +1111,7 @@ private:
    };
 
     //right position, right scale, load
-    auto_command_t const AutoCommandList5[50] = \
+    auto_command_t const FromRightLoadRightScale[50] = \
     {
         { DRIVE, { .drive = { .speed =  0.4, .time = 6.54, .blockCommands = true  } } }, // to center of scale (287.65 inches)
         {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
@@ -1132,7 +1124,7 @@ private:
 
 
 
-    //middle position, left switch, load
+    // Verified
     auto_command_t const FromMiddleLoadLeftSwitch[50] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
@@ -1148,7 +1140,7 @@ private:
     };
 
 
-    //middle position, right switch, load
+    // Verified
     auto_command_t const FromMiddeLoadRightSwitch[50] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
@@ -1165,7 +1157,7 @@ private:
 
 
     //middle position, left scale, load
-    auto_command_t const AutoCommandList8[50] = \
+    auto_command_t const FromMiddleLoadLeftScale[50] = \
      {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
@@ -1176,7 +1168,7 @@ private:
      };
 
     //middle position, right scale, load
-    auto_command_t const AutoCommandList9[50] = \
+    auto_command_t const FromMiddleLoadRightScale[50] = \
     {
         { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
         {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
@@ -1187,7 +1179,7 @@ private:
     };
 
     //middle position, auto line only (from left)
-    auto_command_t const AutoCommandList10[50] = \
+    auto_command_t const FromMiddleCrossLeftLine[50] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
@@ -1198,7 +1190,7 @@ private:
     };
 
     //middle position, auto line only (from right)
-    auto_command_t const AutoCommandList11[50] = \
+    auto_command_t const FromMiddleCrossRightLine[50] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
@@ -1209,8 +1201,8 @@ private:
     };
 
 
-    //left position, right switch, load
-    auto_command_t const AutoCommandList12[50] = \
+    // Verified
+    auto_command_t const FromLeftLoadRightSwitch[50] = \
     {
        { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
        {  TURN, { .turn  = { .speed =  0.4, .angle = 90.0 } } },
@@ -1224,7 +1216,7 @@ private:
 
 
     //right position, left switch, load
-    auto_command_t const AutoCommandList13[50] = \
+    auto_command_t const FromRightLoadLeftSwitch[50] = \
     {
        { DRIVE, { .drive = { .speed =  0.65, .time = 3.0, .blockCommands = true  } } }, //drive until it passes switch
        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
@@ -1239,12 +1231,12 @@ private:
     };
 
     //left position, right scale, load
-    auto_command_t const AutoCommandList14[50] = \
+    auto_command_t const FromLeftLoadRightScale[50] = \
     {
 
     };
 
-    //right position, left scale, load
+    // Verified
     auto_command_t const FromRightLoadLeftScale[50] = \
     {
         { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
@@ -1262,14 +1254,14 @@ private:
 
 
     //left position, auto line only (if switch and/or scale are on right)
-    auto_command_t const AutoCommandList16[50] = \
+    auto_command_t const FromLeftCrossLeftLine[50] = \
     {
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
         { FINISHED },
     };
 
     //right position, auto line only (if switch and/or scale are on left)
-    auto_command_t const AutoCommandList17[50] = \
+    auto_command_t const FromRightCrossRightLine[50] = \
     {
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
         { FINISHED },

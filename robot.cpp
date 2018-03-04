@@ -25,6 +25,7 @@
 #include <Timer.h>
 #include <ADXRS450_Gyro.h>
 
+
 // ***************************************************************************
 //   Function:    deadband
 //
@@ -187,6 +188,8 @@ public:
 
         std::string autoPositionString = "default";
         std::string autoActionString   = "default";
+
+        cubeLiftEncoder.Reset();
 
         Auto_Initalize();
 

@@ -608,10 +608,13 @@ private:
         // Value of the limiter is nominally one, and zero when limit is hit.
         bool const atBotLimitLift = (liftLimiterBot.Get() == 0);
 
+        // Update this limit for the new motor/encoder.
+        int const liftPositionLimit = 5270;
+
         int currentLiftPosition = cubeLiftEncoder->Get();
 
         // Encoder value defines top value.
-        bool const atTopLimitLift = ( currentLiftPosition >= 5270 );
+        bool const atTopLimitLift = ( currentLiftPosition >= liftPositionLimit );
 
         // Need to override the input state and hold position
         // if we are at one of the limits.

@@ -32,18 +32,11 @@ TODO:
 
 Add button to reverse front for driving.
 
-Enable permutations of tested auto modes.
-
-Debug for lift encoder. (need to verify that it works, should be able to use it to limit the height.)
+Verify remaining untested auto modes.
 
 Possibly add variable for auto lift timings.
 
-
-
-
 */
-
-
 
 
 
@@ -619,6 +612,7 @@ private:
     )
     {
         bool const debugCubeLift = false;
+        bool const debugLiftEncoder = false;
 
         double cubeLiftMotorSpeed;
 
@@ -629,6 +623,11 @@ private:
         int const liftPositionLimit = 5270;
 
         int currentLiftPosition = cubeLiftEncoder->Get();
+
+        if ( debugLiftEncoder )
+        {
+            std::cout << currentLiftPosition << "\n" << std::flush;
+        }
 
         // Encoder value defines top value.
         bool const atTopLimitLift = ( currentLiftPosition >= liftPositionLimit );
@@ -1005,8 +1004,9 @@ private:
 
     } auto_command_t;
 
-
+    // *****************************************************************************************************
     //  Debug Autonomous modes
+    // *****************************************************************************************************
 
     auto_command_t const TurnTest[17] = \
     {
@@ -1067,17 +1067,21 @@ private:
 
 
 
-    // Competition Autonomous Modes
 
-    // Default auto mode, simply do nothing at all.
-    auto_command_t const AutoCommanddDoNothing[50] = \
+
+    // *****************************************************************************************************
+    // Competition Autonomous Modes
+    // *****************************************************************************************************
+
+    // Verified. Default auto mode, simply do nothing at all.
+    auto_command_t const AutoCommanddDoNothing[20] = \
     {
        { FINISHED },
     };
 
 
-    // Verified
-    auto_command_t const FromLeftLoadLeftSwitch[50] = \
+    // Verified.
+    auto_command_t const FromLeftLoadLeftSwitch[20] = \
      {
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
         {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
@@ -1087,8 +1091,8 @@ private:
         { FINISHED },
      };
 
-    // Verified
-    auto_command_t const FromRightLoadRightSwitch[50] = \
+    // Verified.
+    auto_command_t const FromRightLoadRightSwitch[20] = \
        {
            { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } },
            {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
@@ -1099,8 +1103,8 @@ private:
       };
 
 
-    // Verified
-    auto_command_t const FromLeftLoadLeftScale[50] = \
+    // Verified.
+    auto_command_t const FromLeftLoadLeftScale[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.5, .time = 5.25, .blockCommands = true  } } }, // to center of scale (287.65 inches)
         {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
@@ -1110,13 +1114,14 @@ private:
         { FINISHED },
    };
 
-    //right position, right scale, load
-    auto_command_t const FromRightLoadRightScale[50] = \
+
+    // Semi-verified. copied from FromLeftLoadLeftScale, changed turn direction
+    auto_command_t const FromRightLoadRightScale[20] = \
     {
-        { DRIVE, { .drive = { .speed =  0.4, .time = 6.54, .blockCommands = true  } } }, // to center of scale (287.65 inches)
+        { DRIVE, { .drive = { .speed =  0.5, .time = 5.25, .blockCommands = true  } } }, // to center of scale (287.65 inches)
         {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 10, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
-        { DRIVE, { .drive = { .speed =  0.2, .time = 0.25, .blockCommands = true  } } }, // towards scale plate
+        { DRIVE, { .drive = { .speed =  -0.3, .time = 0.25, .blockCommands = true  } } }, // away from scale plate
+        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 8, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
         {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
    };
@@ -1124,8 +1129,8 @@ private:
 
 
 
-    // Verified
-    auto_command_t const FromMiddleLoadLeftSwitch[50] = \
+    // Verified.
+    auto_command_t const FromMiddleLoadLeftSwitch[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
@@ -1140,8 +1145,8 @@ private:
     };
 
 
-    // Verified
-    auto_command_t const FromMiddeLoadRightSwitch[50] = \
+    // Verified.
+    auto_command_t const FromMiddeLoadRightSwitch[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
@@ -1156,8 +1161,8 @@ private:
     };
 
 
-    //middle position, left scale, load
-    auto_command_t const FromMiddleLoadLeftScale[50] = \
+    // Unverified.
+    auto_command_t const FromMiddleLoadLeftScale[20] = \
      {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
@@ -1167,8 +1172,8 @@ private:
        { FINISHED },
      };
 
-    //middle position, right scale, load
-    auto_command_t const FromMiddleLoadRightScale[50] = \
+    // Unverified.
+    auto_command_t const FromMiddleLoadRightScale[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
         {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
@@ -1178,8 +1183,8 @@ private:
         { FINISHED },
     };
 
-    //middle position, auto line only (from left)
-    auto_command_t const FromMiddleCrossLeftLine[50] = \
+    // Unverified.
+    auto_command_t const FromMiddleCrossLeftLine[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
@@ -1189,8 +1194,8 @@ private:
        { FINISHED },
     };
 
-    //middle position, auto line only (from right)
-    auto_command_t const FromMiddleCrossRightLine[50] = \
+    // Unverified.
+    auto_command_t const FromMiddleCrossRightLine[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
@@ -1201,8 +1206,8 @@ private:
     };
 
 
-    // Verified
-    auto_command_t const FromLeftLoadRightSwitch[50] = \
+    // Verified.
+    auto_command_t const FromLeftLoadRightSwitch[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
        {  TURN, { .turn  = { .speed =  0.4, .angle = 90.0 } } },
@@ -1215,29 +1220,39 @@ private:
     };
 
 
-    //right position, left switch, load
-    auto_command_t const FromRightLoadLeftSwitch[50] = \
+    // Semi-verified. copied from FromLeftLoadRightSwitch, changed turn directions
+    auto_command_t const FromRightLoadLeftSwitch[20] = \
     {
-       { DRIVE, { .drive = { .speed =  0.65, .time = 3.0, .blockCommands = true  } } }, //drive until it passes switch
+       { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
+       {  TURN, { .turn  = { .speed =  0.4, .angle = -90.0 } } },
+       { DRIVE, { .drive = { .speed =  0.5, .time = 3.0, .blockCommands = true  } } }, //across field to left side
        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-       { DRIVE, { .drive = { .speed =  0.53, .time = 3.0, .blockCommands = true  } } }, //across field to left side
-       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-       { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },  //until it is in line with switch
-       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } }, //might want to do this while it's driving
-       { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } }, //towards right switch
+       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } }, //might want to do this while it's driving to save time
+       { DRIVE, { .drive = { .speed =  0.2, .time = 1.0, .blockCommands = true  } } }, //towards left switch
        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
        { FINISHED },
     };
 
-    //left position, right scale, load
-    auto_command_t const FromLeftLoadRightScale[50] = \
-    {
 
+    // Semi-verified. Copied from FromRightLoadLeftScale, changed turn directions
+    auto_command_t const FromLeftLoadRightScale[20] = \
+    {
+        { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
+        {  TURN, { .turn  = { .speed =  0.4, .angle = 90.0 } } },
+        { DRIVE, { .drive = { .speed =  0.5, .time = 4.0, .blockCommands = true  } } }, //across field to right side
+        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+        { DRIVE, { .drive = { .speed =  0.5, .time = 1.6, .blockCommands = true  } } }, //towards scale
+        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+        { DRIVE, { .drive = { .speed =  -0.3, .time = 0.4, .blockCommands = true  } } }, //away right scale
+        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 9.0, .blockCommands = true  } } }, //might want to do this while it's driving to save time
+        { DRIVE, { .drive = { .speed =  0.2, .time = 1, .blockCommands = true  } } }, //toward right scale
+        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+        { FINISHED },
     };
 
-    // Verified
-    auto_command_t const FromRightLoadLeftScale[50] = \
+
+    // Verified.
+    auto_command_t const FromRightLoadLeftScale[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
         {  TURN, { .turn  = { .speed =  0.4, .angle = -90.0 } } },
@@ -1253,15 +1268,16 @@ private:
     };
 
 
-    //left position, auto line only (if switch and/or scale are on right)
-    auto_command_t const FromLeftCrossLeftLine[50] = \
+    // Unverified. Does this *need* to be verified?
+    auto_command_t const FromLeftCrossLeftLine[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
         { FINISHED },
     };
 
-    //right position, auto line only (if switch and/or scale are on left)
-    auto_command_t const FromRightCrossRightLine[50] = \
+
+    // Unverified. Does this *need* to be verified?
+    auto_command_t const FromRightCrossRightLine[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
         { FINISHED },

@@ -210,6 +210,9 @@ public:
 
         Auto_Initalize();
 
+        // ------------------------------------------------------------------
+        // Verified Auto Routines
+        // ------------------------------------------------------------------
 
         // left position, load left switch
         if ( startingPosition == LEFT_POSITION &&
@@ -274,8 +277,10 @@ public:
             AutoCommandList = FromRightLoadLeftScale;
         }
 
+        // ------------------------------------------------------------------
+        // Semi-verified Auto Routines
+        // ------------------------------------------------------------------
 
-/*
         // right position, load right scale
         if ( startingPosition == RIGHT_POSITION &&
              autoAction       == LOAD_SCALE    &&
@@ -338,8 +343,6 @@ public:
             AutoCommandList = FromLeftLoadRightScale;
         }
 
-
-
         //left position, auto line only
         if ( startingPosition == LEFT_POSITION &&
              autoAction       == CROSS_LINE    &&
@@ -358,7 +361,29 @@ public:
             AutoCommandList = FromRightCrossRightLine;
         }
 
-*/
+
+        // ------------------------------------------------------------------
+        // Unverified Auto Routines
+        // ------------------------------------------------------------------
+        /*
+        // middle position, load left scale
+        if ( startingPosition == MIDDLE_POSITION &&
+             autoAction       == LOAD_SCALE    &&
+             gameData[0]      == 'L'
+            )
+        {
+            AutoCommandList = FromMiddleLoadLeftScale;
+        }
+        // middle position, load right scale
+        if ( startingPosition == MIDDLE_POSITION &&
+             autoAction       == LOAD_SCALE    &&
+             gameData[0]      == 'L'
+            )
+        {
+            AutoCommandList = FromMiddleLoadRightScale;
+        }
+        */
+
 
         // Debug info below here
         if ( startingPosition == MIDDLE_POSITION )
@@ -1278,7 +1303,7 @@ private:
     };
 
 
-    // Unverified. Does this *need* to be verified?
+    // Semi-verified. Copied from FromLeftLoadLeftSwitch.
     auto_command_t const FromLeftCrossLeftLine[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
@@ -1286,7 +1311,7 @@ private:
     };
 
 
-    // Unverified. Does this *need* to be verified?
+    // Semi-verified. Copied from FromRightLoadRightSwitch.
     auto_command_t const FromRightCrossRightLine[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches

@@ -34,6 +34,8 @@ Add button to reverse front for driving.
 
 Verify remaining untested auto modes.
 
+Debug for lift encoder. (need to verify that it works, should be able to use it to limit the height.)
+
 Possibly add variable for auto lift timings.
 
 */
@@ -260,7 +262,7 @@ public:
              gameData[0]      == 'R'
             )
         {
-            AutoCommandList = FromMiddeLoadRightSwitch;
+            AutoCommandList = FromMiddleLoadRightSwitch;
         }
 
         //right position, load left scale
@@ -1073,6 +1075,12 @@ private:
     // Competition Autonomous Modes
     // *****************************************************************************************************
 
+    // Verified      - Actually tested the autonomous.
+    // Semi-verified - Tested a permutation of the autonomous.
+    // Unverified    - Have not tested the autonomous.
+
+
+
     // Verified. Default auto mode, simply do nothing at all.
     auto_command_t const AutoCommanddDoNothing[20] = \
     {
@@ -1090,6 +1098,7 @@ private:
         {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
      };
+
 
     // Verified.
     auto_command_t const FromRightLoadRightSwitch[20] = \
@@ -1115,7 +1124,7 @@ private:
    };
 
 
-    // Semi-verified. copied from FromLeftLoadLeftScale, changed turn direction
+    // Semi-verified. Copied from FromLeftLoadLeftScale, changed turn direction
     auto_command_t const FromRightLoadRightScale[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.5, .time = 5.25, .blockCommands = true  } } }, // to center of scale (287.65 inches)
@@ -1125,8 +1134,6 @@ private:
         {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
    };
-
-
 
 
     // Verified.
@@ -1146,7 +1153,7 @@ private:
 
 
     // Verified.
-    auto_command_t const FromMiddeLoadRightSwitch[20] = \
+    auto_command_t const FromMiddleLoadRightSwitch[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
@@ -1172,6 +1179,7 @@ private:
        { FINISHED },
      };
 
+
     // Unverified.
     auto_command_t const FromMiddleLoadRightScale[20] = \
     {
@@ -1183,25 +1191,27 @@ private:
         { FINISHED },
     };
 
-    // Unverified.
+
+    // Semi-verified. Copied from FromMiddleLoadLeftSwitch, removed cube loading commands.
     auto_command_t const FromMiddleCrossLeftLine[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-       { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //driving past left switch
+       { DRIVE, { .drive = { .speed =  0.4, .time = 2.9, .blockCommands = true  } } }, //driving past left line
        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-       { DRIVE, { .drive = { .speed =  0.4, .time = 2.5, .blockCommands = true  } } },
+       { DRIVE, { .drive = { .speed =  0.5, .time = 2.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
        { FINISHED },
     };
 
-    // Unverified.
+
+    // Semi-verified. Copied from FromMiddleLoadRightSwitch, removed cube loading commands.
     auto_command_t const FromMiddleCrossRightLine[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-       { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //driving past right switch
+       { DRIVE, { .drive = { .speed =  0.4, .time = 2.9, .blockCommands = true  } } }, //driving past right line
        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-       { DRIVE, { .drive = { .speed =  0.4, .time = 2.5, .blockCommands = true  } } },
+       { DRIVE, { .drive = { .speed =  0.5, .time = 2.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
        { FINISHED },
     };
 

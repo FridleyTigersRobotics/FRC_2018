@@ -30,7 +30,7 @@
 
 TODO:
 
-Add button to reverse front for driving.
+Add button to reverse front for driving?
 
 Verify remaining untested auto modes.
 
@@ -159,7 +159,7 @@ double minAbsLimitValue(
 class Robot : public frc::IterativeRobot
 {
 public:
-
+    double cubeIntakeBias = 0.0;
     // ***************************************************************************
     //   Method:      RobotInit
     //
@@ -205,8 +205,8 @@ public:
 
         std::string autoPositionString = "default";
         std::string autoActionString   = "default";
-
-        cubeLiftEncoder.Reset();
+        AutoCommandList = AutoCommanddDoNothing;
+        cubeLiftEncoder->Reset();
 
         Auto_Initalize();
 
@@ -238,6 +238,7 @@ public:
              gameData[1]      == 'L'
             )
         {
+
             AutoCommandList = FromLeftLoadLeftScale;
         }
 
@@ -284,7 +285,7 @@ public:
         // right position, load right scale
         if ( startingPosition == RIGHT_POSITION &&
              autoAction       == LOAD_SCALE    &&
-             gameData[0]      == 'L'
+             gameData[1]      == 'R'
             )
         {
             AutoCommandList = FromRightLoadRightScale;
@@ -293,7 +294,7 @@ public:
         // middle position, load left scale
         if ( startingPosition == MIDDLE_POSITION &&
              autoAction       == LOAD_SCALE    &&
-             gameData[0]      == 'L'
+             gameData[1]      == 'L'
             )
         {
             AutoCommandList = FromMiddleLoadLeftScale;
@@ -301,7 +302,7 @@ public:
         // middle position, load right scale
         if ( startingPosition == MIDDLE_POSITION &&
              autoAction       == LOAD_SCALE    &&
-             gameData[0]      == 'L'
+             gameData[1]      == 'R'
             )
         {
             AutoCommandList = FromMiddleLoadRightScale;
@@ -310,7 +311,7 @@ public:
         //middle position, auto line only (from left)
         if ( startingPosition == MIDDLE_POSITION &&
              autoAction       == CROSS_LINE    &&
-             gameData[0]      == 'L'
+             gameData[0]      == 'R'
             )
         {
             AutoCommandList = FromMiddleCrossLeftLine;
@@ -337,7 +338,7 @@ public:
         //left position, load right scale
         if ( startingPosition == LEFT_POSITION &&
              autoAction       == LOAD_SCALE    &&
-             gameData[0]      == 'R'
+             gameData[1]      == 'R'
             )
         {
             AutoCommandList = FromLeftLoadRightScale;
@@ -345,8 +346,7 @@ public:
 
         //left position, auto line only
         if ( startingPosition == LEFT_POSITION &&
-             autoAction       == CROSS_LINE    &&
-             gameData[0]      == 'L'
+             autoAction       == CROSS_LINE
             )
         {
             AutoCommandList = FromLeftCrossLeftLine;
@@ -354,8 +354,7 @@ public:
 
         //right position, auto line only
         if ( startingPosition == RIGHT_POSITION &&
-             autoAction       == CROSS_LINE    &&
-             gameData[0]      == 'L'
+             autoAction       == CROSS_LINE
             )
         {
             AutoCommandList = FromRightCrossRightLine;
@@ -449,6 +448,8 @@ public:
     // ***************************************************************************
     void TeleopInit()
     {
+        //cubeLiftEncoder->Reset();
+        cubeIntakeBias = 0.15;
         maxAbsMotorChange = 0.05;
     }
 
@@ -461,9 +462,6 @@ public:
     // ***************************************************************************
     void TeleopPeriodic()
     {
-        std::cout << gyro.GetAngle();
-        std::cout << '\n';
-        std::cout << std::flush;
         Tele_UpdateDriveSystem();
         Tele_UpdateCubeLift();
         Tele_UpdateCubeIntake();
@@ -497,7 +495,7 @@ private:
 
     // Digital I/O
     frc::DigitalInput winchLimiterTop{ 0 };
-    frc::DigitalInput winchLimiterBot{ 1 };
+    frc::DigitalInput winchLimiterBot{ 5 };
     frc::Encoder *cubeLiftEncoder = new Encoder{ 2, 3 };
     frc::DigitalInput liftLimiterBot{ 4 };
 
@@ -603,6 +601,10 @@ private:
         double motorSpeed
     )
     {
+        if ( (motorSpeed >= 0.0) && (motorSpeed <= 0.2) )
+        {
+            motorSpeed = 0.2;
+        }
         CubeIntakeR.Set( ControlMode::PercentOutput,  motorSpeed );
         CubeIntakeL.Set( ControlMode::PercentOutput, -motorSpeed );
     }
@@ -639,15 +641,8 @@ private:
     )
     {
         bool const debugCubeLift = false;
-        bool const debugLiftEncoder = false;
-
-        double cubeLiftMotorSpeed;
-
-        // Value of the limiter is nominally one, and zero when limit is hit.
-        bool const atBotLimitLift = (liftLimiterBot.Get() == 0);
-
-        // Update this limit for the new motor/encoder.
-        int const liftPositionLimit = 5270;
+        bool const debugLiftEncoder = true;
+        bool const useSimpleLiftControl = false;
 
         int currentLiftPosition = cubeLiftEncoder->Get();
 
@@ -656,83 +651,106 @@ private:
             std::cout << currentLiftPosition << "\n" << std::flush;
         }
 
-        // Encoder value defines top value.
-        bool const atTopLimitLift = ( currentLiftPosition >= liftPositionLimit );
-
-        // Need to override the input state and hold position
-        // if we are at one of the limits.
-        if ( ( ( newLiftState == MoveDown ) && atBotLimitLift ) || ( ( newLiftState == MoveUp ) && atTopLimitLift ) )
+        if ( useSimpleLiftControl )
         {
-            newLiftState = HoldPosition;
-        }
+            double cubeLiftMotorSpeed = 0.0;
 
-        // Changing from a moving state to holding the position.
-        // Need to update the desired lift position.
-        if ( ( newLiftState     == HoldPosition ) &&
-             ( currentLiftState != HoldPosition ) )
-        {
-            desiredLiftPostion = currentLiftPosition;
-        }
-
-        currentLiftState = newLiftState;
-
-        switch ( currentLiftState )
-        {
-            case MoveUp:
+            if ( newLiftState == MoveUp )
             {
-                if ( debugCubeLift )
-                {
-                    std::cout << "MoveUp";
-                }
-
-                cubeLiftMotorSpeed = -1 * ( fabs( speed ) );
-                break;
+                cubeLiftMotorSpeed = -1.0;
             }
 
-            case MoveDown:
-            {
-                if ( debugCubeLift )
-                {
-                    std::cout << "MoveDown";
-                }
-                cubeLiftMotorSpeed = 0.8 * ( fabs( speed ) );
-                break;
-            }
-
-            case HoldPosition:
-            default:
-            {
-                int const liftPositionError = currentLiftPosition - desiredLiftPostion;
-
-                if ( debugCubeLift )
-                {
-                    std::cout << "HoldPosition  ";
-                    std::cout << desiredLiftPostion;
-                    std::cout << "   ";
-                    std::cout << currentLiftPosition;
-                }
-
-                if ( liftPositionError < 0 )
-                {
-                    cubeLiftMotorSpeed = saturate( (double)liftPositionError * 0.1, -1.0, 1.0 );
-                }
-                else
-                {
-                    cubeLiftMotorSpeed = 0.0;
-                }
-
-                break;
-            }
+            // Update motor controllers
+            mCubeLift.Set( cubeLiftMotorSpeed );
         }
-
-        if ( debugCubeLift )
+        else
         {
-            std::cout << "\n";
-            std::cout << std::flush;
-        }
+            double cubeLiftMotorSpeed;
 
-        // Update motor controllers
-        mCubeLift.Set( cubeLiftMotorSpeed );
+            // Value of the limiter is nominally one, and zero when limit is hit.
+            bool const atBotLimitLift = (liftLimiterBot.Get() == 0);
+
+            // Update this limit for the new motor/encoder.
+            int const liftPositionLimit = 1950;
+
+            // Encoder value defines top value.
+            bool const atTopLimitLift = ( currentLiftPosition >= liftPositionLimit );
+
+            // Need to override the input state and hold position
+            // if we are at one of the limits.
+            if ( ( ( newLiftState == MoveDown ) && atBotLimitLift ) || ( ( newLiftState == MoveUp ) && atTopLimitLift ) )
+            {
+                newLiftState = HoldPosition;
+            }
+
+            // Changing from a moving state to holding the position.
+            // Need to update the desired lift position.
+            if ( ( newLiftState     == HoldPosition ) &&
+                 ( currentLiftState != HoldPosition ) )
+            {
+                desiredLiftPostion = currentLiftPosition;
+            }
+
+            currentLiftState = newLiftState;
+
+            switch ( currentLiftState )
+            {
+                case MoveUp:
+                {
+                    if ( debugCubeLift )
+                    {
+                        std::cout << "MoveUp";
+                    }
+
+                    cubeLiftMotorSpeed = -1 * ( fabs( liftSpeed ) );
+                    break;
+                }
+
+                case MoveDown:
+                {
+                    if ( debugCubeLift )
+                    {
+                        std::cout << "MoveDown";
+                    }
+                    cubeLiftMotorSpeed = 0.8 * ( fabs( liftSpeed ) );
+                    break;
+                }
+
+                case HoldPosition:
+                default:
+                {
+                    int const liftPositionError = currentLiftPosition - desiredLiftPostion;
+
+                    if ( debugCubeLift )
+                    {
+                        std::cout << "HoldPosition  ";
+                        std::cout << desiredLiftPostion;
+                        std::cout << "   ";
+                        std::cout << currentLiftPosition;
+                    }
+
+                    if ( liftPositionError < 0 )
+                    {
+                        cubeLiftMotorSpeed = saturate( (double)liftPositionError * 0.1, -1.0, 1.0 );
+                    }
+                    else
+                    {
+                        cubeLiftMotorSpeed = 0.0;
+                    }
+
+                    break;
+                }
+            }
+
+            if ( debugCubeLift )
+            {
+                std::cout << "\n";
+                std::cout << std::flush;
+            }
+
+            // Update motor controllers
+            mCubeLift.Set( cubeLiftMotorSpeed );
+        }
     }
 
 
@@ -749,6 +767,11 @@ private:
 // ***************************************************************************
 
     double prevXValue = 0.0;
+    double driveDirection = 1.0;
+    int    numDirectionDebounceCycles = 0;
+    bool   changedDirForThisButtonPress = false;
+
+
 
     // ***************************************************************************
     //   Method:      Tele_UpdateDriveSystem
@@ -760,14 +783,52 @@ private:
     // ***************************************************************************
     void Tele_UpdateDriveSystem( void )
     {
+        bool const debugGyro = false;
+        if ( debugGyro )
+        {
+            std::cout << gyro.GetAngle();
+            std::cout << '\n';
+            std::cout << std::flush;
+        }
+
+
         bool const debugDrive = false;
         frc::XboxController::JoystickHand const driveStickHand = frc::XboxController::JoystickHand::kLeftHand;
+
+        int const NumDebounceCycles = 3;
+
+        bool const aButtonPressed = XboxController.GetAButton( );
+
+        if ( aButtonPressed )
+        {
+            if ( numDirectionDebounceCycles >= NumDebounceCycles )
+            {
+                if ( changedDirForThisButtonPress == false )
+                {
+                    driveDirection *= -1.0;
+                    changedDirForThisButtonPress = true;
+                }
+            }
+            else
+            {
+                numDirectionDebounceCycles++;
+            }
+        }
+        else
+        {
+            changedDirForThisButtonPress = false;
+            numDirectionDebounceCycles = 0;
+        }
+
+
+        double const turnSensitivity = 0.05;
+
 
         // Retrieve the Left stick X and Y positions
         double const leftStickXPosition = -1.0 * XboxController.GetX( driveStickHand );
         // Multiply by negative one to get forward on the stick to be positive,
-        // and backwards on the sticl be negative.
-        double const leftStickYPosition = -1.0 * XboxController.GetY( driveStickHand );
+        // and backwards on the stick be negative.
+        double const leftStickYPosition = driveDirection * -1.0 * XboxController.GetY( driveStickHand );
 
         if ( debugDrive )
         {
@@ -779,15 +840,18 @@ private:
         }
 
         // Apply a deadband to the stick position.
-        double const deadbandEnd        = 0.22;
+        double const deadbandEnd        = 0.18;
         double const xValueWithDeadband = deadband( leftStickXPosition, deadbandEnd );
         double const yValueWithDeadband = deadband( leftStickYPosition, deadbandEnd );
 
-        double const maxXValueChange = 0.10;
-        double const xValueDiff = saturate( xValueWithDeadband - prevXValue, -maxXValueChange, maxXValueChange ) ;
+        double const xValueSquared = xValueWithDeadband * fabs( xValueWithDeadband );
+        double const yValueSquared = yValueWithDeadband * fabs( yValueWithDeadband );
+
+        double const maxXValueChange = turnSensitivity;
+        double const xValueDiff = saturate( xValueSquared - prevXValue, -maxXValueChange, maxXValueChange ) ;
 
         double const xValueAdjusted = prevXValue + xValueDiff;
-        double const yValueAdjusted = yValueWithDeadband;
+        double const yValueAdjusted = yValueSquared;
 
         prevXValue = xValueAdjusted;
 
@@ -933,6 +997,10 @@ private:
 
         if ( yButtonPressed )
         {
+            if ( debugWinch )
+            {
+                std::cout << "y\n";
+            }
             if ( notAtTopLimit )
             {
                 winchMotorSpeed = 1.0;
@@ -944,6 +1012,10 @@ private:
         }
         else if ( bButtonPressed )
         {
+            if ( debugWinch )
+            {
+                std::cout << "b\n";
+            }
             if ( notAtBotLimit )
             {
                 winchMotorSpeed = -1.0;
@@ -955,6 +1027,10 @@ private:
         }
         else
         {
+            if ( debugWinch )
+            {
+                std::cout << "na\n";
+            }
             winchMotorSpeed = 0.0;
         }
 
@@ -1100,6 +1176,10 @@ private:
     // Competition Autonomous Modes
     // *****************************************************************************************************
 
+    double const LiftTimeToScaleHeight  = 6.0; // was 8.0 and 9.0 for old motor
+    double const LiftTimeToSwitchHeight = 3.0; // was 3.5 for old motor
+    double const TurnSpeed              = 0.3; // Maybe need to increase this.
+
     // Verified      - Actually tested the autonomous.
     // Semi-verified - Tested a permutation of the autonomous.
     // Unverified    - Have not tested the autonomous.
@@ -1117,8 +1197,8 @@ private:
     auto_command_t const FromLeftLoadLeftSwitch[20] = \
      {
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
-        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } },
+        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
+        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToSwitchHeight, .blockCommands = true  } } },
         { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } },
         {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
@@ -1129,8 +1209,8 @@ private:
     auto_command_t const FromRightLoadRightSwitch[20] = \
        {
            { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } },
-           {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-           {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } },
+           {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
+           {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToSwitchHeight, .blockCommands = true  } } },
            { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } },
            {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
            { FINISHED },
@@ -1141,9 +1221,9 @@ private:
     auto_command_t const FromLeftLoadLeftScale[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.5, .time = 5.25, .blockCommands = true  } } }, // to center of scale (287.65 inches)
-        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
         { DRIVE, { .drive = { .speed =  -0.3, .time = 0.25, .blockCommands = true  } } }, // away from scale plate
-        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 8, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
+        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToScaleHeight, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
         {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
    };
@@ -1153,9 +1233,9 @@ private:
     auto_command_t const FromRightLoadRightScale[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.5, .time = 5.25, .blockCommands = true  } } }, // to center of scale (287.65 inches)
-        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
         { DRIVE, { .drive = { .speed =  -0.3, .time = 0.25, .blockCommands = true  } } }, // away from scale plate
-        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 8, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
+        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToScaleHeight, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
         {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
    };
@@ -1165,12 +1245,12 @@ private:
     auto_command_t const FromMiddleLoadLeftSwitch[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
-       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
        { DRIVE, { .drive = { .speed =  0.4, .time = 2.9, .blockCommands = true  } } }, //driving past left switch
-       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
        { DRIVE, { .drive = { .speed =  0.5, .time = 2.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
-       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
+       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToSwitchHeight, .blockCommands = true  } } },
        { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } }, //forward, towards switch platform
        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
        { FINISHED },
@@ -1181,12 +1261,12 @@ private:
     auto_command_t const FromMiddleLoadRightSwitch[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
-       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
        { DRIVE, { .drive = { .speed =  0.4, .time = 2.9, .blockCommands = true  } } }, //driving past right switch
-       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
        { DRIVE, { .drive = { .speed =  0.5, .time = 2.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
-       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
+       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToSwitchHeight, .blockCommands = true  } } },
        { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } }, //forward, towards switch platform
        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
        { FINISHED },
@@ -1197,9 +1277,9 @@ private:
     auto_command_t const FromMiddleLoadLeftScale[20] = \
      {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
-       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
        { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //driving past left switch
-       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
        { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
        { FINISHED },
      };
@@ -1209,9 +1289,9 @@ private:
     auto_command_t const FromMiddleLoadRightScale[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
-        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //driving past left switch
-        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
         { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
         { FINISHED },
     };
@@ -1221,9 +1301,9 @@ private:
     auto_command_t const FromMiddleCrossLeftLine[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
-       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
        { DRIVE, { .drive = { .speed =  0.4, .time = 2.9, .blockCommands = true  } } }, //driving past left line
-       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
        { DRIVE, { .drive = { .speed =  0.5, .time = 2.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
        { FINISHED },
     };
@@ -1233,9 +1313,9 @@ private:
     auto_command_t const FromMiddleCrossRightLine[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
-       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
        { DRIVE, { .drive = { .speed =  0.4, .time = 2.9, .blockCommands = true  } } }, //driving past right line
-       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
        { DRIVE, { .drive = { .speed =  0.5, .time = 2.0, .blockCommands = true  } } }, //this may need changes so it is in line with switch
        { FINISHED },
     };
@@ -1245,10 +1325,10 @@ private:
     auto_command_t const FromLeftLoadRightSwitch[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
-       {  TURN, { .turn  = { .speed =  0.4, .angle = 90.0 } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
        { DRIVE, { .drive = { .speed =  0.5, .time = 3.0, .blockCommands = true  } } }, //across field to right side
-       {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
-       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } }, //might want to do this while it's driving to save time
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
+       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToSwitchHeight, .blockCommands = true  } } }, //might want to do this while it's driving to save time
        { DRIVE, { .drive = { .speed =  0.2, .time = 1.0, .blockCommands = true  } } }, //towards right switch
        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
        { FINISHED },
@@ -1259,10 +1339,10 @@ private:
     auto_command_t const FromRightLoadLeftSwitch[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
-       {  TURN, { .turn  = { .speed =  0.4, .angle = -90.0 } } },
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
        { DRIVE, { .drive = { .speed =  0.5, .time = 3.0, .blockCommands = true  } } }, //across field to left side
-       {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
-       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.5, .blockCommands = true  } } }, //might want to do this while it's driving to save time
+       {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
+       {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToSwitchHeight, .blockCommands = true  } } }, //might want to do this while it's driving to save time
        { DRIVE, { .drive = { .speed =  0.2, .time = 1.0, .blockCommands = true  } } }, //towards left switch
        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
        { FINISHED },
@@ -1273,13 +1353,13 @@ private:
     auto_command_t const FromLeftLoadRightScale[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
-        {  TURN, { .turn  = { .speed =  0.4, .angle = 90.0 } } },
+        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
         { DRIVE, { .drive = { .speed =  0.5, .time = 4.0, .blockCommands = true  } } }, //across field to right side
-        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
         { DRIVE, { .drive = { .speed =  0.5, .time = 1.6, .blockCommands = true  } } }, //towards scale
-        {  TURN, { .turn  = { .speed =  0.3, .angle = -90.0 } } },
+        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
         { DRIVE, { .drive = { .speed =  -0.3, .time = 0.4, .blockCommands = true  } } }, //away right scale
-        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 9.0, .blockCommands = true  } } }, //might want to do this while it's driving to save time
+        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToScaleHeight, .blockCommands = true  } } }, //might want to do this while it's driving to save time
         { DRIVE, { .drive = { .speed =  0.2, .time = 1, .blockCommands = true  } } }, //toward right scale
         {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
@@ -1290,13 +1370,13 @@ private:
     auto_command_t const FromRightLoadLeftScale[20] = \
     {
         { DRIVE, { .drive = { .speed =  0.6, .time = 3.1, .blockCommands = true  } } }, //drive until it passes switch ( 225.47inches )
-        {  TURN, { .turn  = { .speed =  0.4, .angle = -90.0 } } },
+        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
         { DRIVE, { .drive = { .speed =  0.5, .time = 4.0, .blockCommands = true  } } }, //across field to left side
-        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
         { DRIVE, { .drive = { .speed =  0.5, .time = 1.6, .blockCommands = true  } } }, //towards scale
-        {  TURN, { .turn  = { .speed =  0.3, .angle = 90.0 } } },
+        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
         { DRIVE, { .drive = { .speed =  -0.3, .time = 0.4, .blockCommands = true  } } }, //away left scale
-        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 9.0, .blockCommands = true  } } }, //might want to do this while it's driving to save time
+        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToScaleHeight, .blockCommands = true  } } }, //might want to do this while it's driving to save time
         { DRIVE, { .drive = { .speed =  0.2, .time = 1, .blockCommands = true  } } }, //toward left scale
         {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
@@ -1844,13 +1924,13 @@ private:
         leftMotorSpeed = \
         minAbsLimitValue(
             leftMotorSpeed,
-            0.15
+            0.3
         );
 
         rightMotorSpeed = \
         minAbsLimitValue(
             rightMotorSpeed,
-            0.15
+            0.3
         );
 
         if ( debugTurn )

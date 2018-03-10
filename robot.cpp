@@ -186,6 +186,7 @@ public:
         cubeLiftEncoder->SetReverseDirection(false);
         cubeLiftEncoder->SetSamplesToAverage(1);
         gyro.Calibrate();
+        CameraServer::GetInstance()->StartAutomaticCapture();
     }
 
 
@@ -206,6 +207,7 @@ public:
         std::string autoPositionString = "default";
         std::string autoActionString   = "default";
         AutoCommandList = AutoCommanddDoNothing;
+        cubeIntakeBias = 0.0;
         cubeLiftEncoder->Reset();
 
         Auto_Initalize();
@@ -671,7 +673,7 @@ private:
             bool const atBotLimitLift = (liftLimiterBot.Get() == 0);
 
             // Update this limit for the new motor/encoder.
-            int const liftPositionLimit = 1950;
+            int const liftPositionLimit = 2018;
 
             // Encoder value defines top value.
             bool const atTopLimitLift = ( currentLiftPosition >= liftPositionLimit );
@@ -1177,8 +1179,9 @@ private:
     // *****************************************************************************************************
 
     double const LiftTimeToScaleHeight  = 6.0; // was 8.0 and 9.0 for old motor
-    double const LiftTimeToSwitchHeight = 3.0; // was 3.5 for old motor
+    double const LiftTimeToSwitchHeight = 2.2; // was 3.5 for old motor
     double const TurnSpeed              = 0.3; // Maybe need to increase this.
+    double const CubeOutSpeedForSwitch  = -0.7;
 
     // Verified      - Actually tested the autonomous.
     // Semi-verified - Tested a permutation of the autonomous.
@@ -1196,11 +1199,11 @@ private:
     // Verified.
     auto_command_t const FromLeftLoadLeftSwitch[20] = \
      {
-        { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } }, // 132 inches
+        { DRIVE, { .drive = { .speed =  0.4, .time = 3.3, .blockCommands = true  } } }, // 132 inches
         {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
         {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToSwitchHeight, .blockCommands = true  } } },
-        { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } },
-        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+        { DRIVE, { .drive = { .speed =  0.2, .time = 1.0, .blockCommands = true  } } },
+        {  CUBE, { .cube  = { .speed =  CubeOutSpeedForSwitch, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
      };
 
@@ -1208,11 +1211,11 @@ private:
     // Verified.
     auto_command_t const FromRightLoadRightSwitch[20] = \
        {
-           { DRIVE, { .drive = { .speed =  0.4, .time = 3.0, .blockCommands = true  } } },
+           { DRIVE, { .drive = { .speed =  0.4, .time = 3.3, .blockCommands = true  } } },
            {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
            {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToSwitchHeight, .blockCommands = true  } } },
-           { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } },
-           {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+           { DRIVE, { .drive = { .speed =  0.2, .time = 1.0, .blockCommands = true  } } },
+           {  CUBE, { .cube  = { .speed = CubeOutSpeedForSwitch, .time = 1.5, .blockCommands = false } } },
            { FINISHED },
       };
 
@@ -1242,7 +1245,7 @@ private:
 
 
     // Verified.
-    auto_command_t const FromMiddleLoadLeftSwitch[20] = \
+    /*auto_command_t const FromMiddleLoadLeftSwitch[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
@@ -1254,11 +1257,11 @@ private:
        { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } }, //forward, towards switch platform
        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
        { FINISHED },
-    };
+    };*/
 
 
     // Verified.
-    auto_command_t const FromMiddleLoadRightSwitch[20] = \
+    /*auto_command_t const FromMiddleLoadRightSwitch[20] = \
     {
        { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
@@ -1270,7 +1273,37 @@ private:
        { DRIVE, { .drive = { .speed =  0.2, .time = 0.5, .blockCommands = true  } } }, //forward, towards switch platform
        {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
        { FINISHED },
-    };
+    };*/
+
+    //middle position, left switch, load
+        //change 2
+    auto_command_t const FromMiddleLoadLeftSwitch[50] = \
+        {
+           { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
+           {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
+           { DRIVE, { .drive = { .speed =  0.4, .time = 1.75, .blockCommands = true  } } }, // was 1.71 //driving to line up with middle of switch plate
+           {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
+           {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToSwitchHeight, .blockCommands = true  } } },
+           { DRIVE, { .drive = { .speed =  0.4, .time = 2.11, .blockCommands = true  } } }, //forward, towards switch plate
+           {  CUBE, { .cube  = { .speed =  CubeOutSpeedForSwitch, .time = 1.5, .blockCommands = false } } },
+           { FINISHED },
+        };
+
+
+    //middle position, right switch, load
+    auto_command_t const FromMiddleLoadRightSwitch[50] = \
+        {
+            { DRIVE, { .drive = { .speed =  0.4, .time = 1.0, .blockCommands = true  } } },
+            {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
+            { DRIVE, { .drive = { .speed =  0.4, .time = 1.1, .blockCommands = true  } } },// was 0.84 //driving to line up with middle of switch plate
+            {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
+            {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToSwitchHeight, .blockCommands = true  } } },
+            { DRIVE, { .drive = { .speed =  0.4, .time = 2.11, .blockCommands = true  } } }, //forward, towards switch plate
+            {  CUBE, { .cube  = { .speed =  CubeOutSpeedForSwitch, .time = 1.5, .blockCommands = false } } },
+            { FINISHED },
+        };
+
+
 
 
     // Unverified.
@@ -1330,7 +1363,7 @@ private:
        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToSwitchHeight, .blockCommands = true  } } }, //might want to do this while it's driving to save time
        { DRIVE, { .drive = { .speed =  0.2, .time = 1.0, .blockCommands = true  } } }, //towards right switch
-       {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+       {  CUBE, { .cube  = { .speed =  CubeOutSpeedForSwitch, .time = 1.5, .blockCommands = false } } },
        { FINISHED },
     };
 
@@ -1344,7 +1377,7 @@ private:
        {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToSwitchHeight, .blockCommands = true  } } }, //might want to do this while it's driving to save time
        { DRIVE, { .drive = { .speed =  0.2, .time = 1.0, .blockCommands = true  } } }, //towards left switch
-       {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+       {  CUBE, { .cube  = { .speed =  CubeOutSpeedForSwitch, .time = 1.5, .blockCommands = false } } },
        { FINISHED },
     };
 
@@ -1924,13 +1957,13 @@ private:
         leftMotorSpeed = \
         minAbsLimitValue(
             leftMotorSpeed,
-            0.3
+            0.2
         );
 
         rightMotorSpeed = \
         minAbsLimitValue(
             rightMotorSpeed,
-            0.3
+            0.2
         );
 
         if ( debugTurn )

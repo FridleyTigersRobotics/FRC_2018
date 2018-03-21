@@ -277,7 +277,16 @@ public:
              gameData[1]      == 'L'
             )
         {
-            AutoCommandList = FromRightLoadLeftScale;
+            // Scale too far, do switch
+            if ( gameData[0] == 'L' )
+            {
+                AutoCommandList = FromRightLoadLeftSwitch;
+            }
+            else
+            {
+                AutoCommandList = FromRightLoadRightSwitch;
+            }
+            //AutoCommandList = FromRightLoadLeftScale;
         }
 
         // ------------------------------------------------------------------
@@ -343,7 +352,17 @@ public:
              gameData[1]      == 'R'
             )
         {
-            AutoCommandList = FromLeftLoadRightScale;
+            // Scale too far, load switch instead
+            if ( gameData[0] == 'L' )
+            {
+                AutoCommandList = FromLeftLoadLeftSwitch;
+            }
+            else
+            {
+                AutoCommandList = FromLeftLoadRightSwitch;
+            }
+
+            //AutoCommandList = FromLeftLoadRightScale;
         }
 
         //left position, auto line only

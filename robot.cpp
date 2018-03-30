@@ -381,7 +381,6 @@ public:
             AutoCommandList = FromRightCrossRightLine;
         }
 
-
         // ------------------------------------------------------------------
         // Unverified Auto Routines
         // ------------------------------------------------------------------
@@ -649,7 +648,6 @@ private:
 
 
 
-
     // ***************************************************************************
     //   Method:      SetCubeLiftState
     //
@@ -661,7 +659,7 @@ private:
         double       liftSpeed
     )
     {
-        bool const debugCubeLift = false;
+        bool const debugCubeLift = true;
         bool const debugLiftEncoder = true;
         bool const useSimpleLiftControl = false;
 
@@ -678,7 +676,7 @@ private:
 
             if ( newLiftState == MoveUp )
             {
-                cubeLiftMotorSpeed = -1.0;
+                cubeLiftMotorSpeed = fabs(liftSpeed);
             }
 
             // Update motor controllers
@@ -692,7 +690,7 @@ private:
             bool const atBotLimitLift = (liftLimiterBot.Get() == 0);
 
             // Update this limit for the new motor/encoder.
-            int const liftPositionLimit = 2018;
+            int const liftPositionLimit = 217000;//2018;
 
             // Encoder value defines top value.
             bool const atTopLimitLift = ( currentLiftPosition >= liftPositionLimit );
@@ -723,7 +721,7 @@ private:
                         std::cout << "MoveUp";
                     }
 
-                    cubeLiftMotorSpeed = -1 * ( fabs( liftSpeed ) );
+                    cubeLiftMotorSpeed = fabs( liftSpeed );
                     break;
                 }
 
@@ -733,14 +731,14 @@ private:
                     {
                         std::cout << "MoveDown";
                     }
-                    cubeLiftMotorSpeed = 0.8 * ( fabs( liftSpeed ) );
+                    cubeLiftMotorSpeed = -0.2 * ( fabs( liftSpeed ) );
                     break;
                 }
 
                 case HoldPosition:
                 default:
                 {
-                    int const liftPositionError = currentLiftPosition - desiredLiftPostion;
+                    int const liftPositionError = desiredLiftPostion - currentLiftPosition;
 
                     if ( debugCubeLift )
                     {
@@ -748,11 +746,14 @@ private:
                         std::cout << desiredLiftPostion;
                         std::cout << "   ";
                         std::cout << currentLiftPosition;
+                        std::cout << "   ";
+                        std::cout << liftPositionError;
+
                     }
 
-                    if ( liftPositionError < 0 )
+                    if ( liftPositionError > 0 )
                     {
-                        cubeLiftMotorSpeed = saturate( (double)liftPositionError * 0.1, -1.0, 1.0 );
+                        cubeLiftMotorSpeed = saturate( (double)liftPositionError * 0.0005, -1.0, 1.0 );
                     }
                     else
                     {
@@ -912,7 +913,7 @@ private:
             std::cout << "   ";
         }
 
-        double const liftSpeed = deadband( stickYPosition, 0.5 );
+        double const liftSpeed = deadband( stickYPosition, 0.2 );
 
         // Determine the new cube lift state based on the controller input.
         if ( stickYPosition > 0.5 )
@@ -1156,10 +1157,8 @@ private:
 
     auto_command_t const LiftTest[5] = \
     {
-        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 3.0, .blockCommands = true  } } },
-        {  WAIT, { .wait = { .time  = 2.0  } } },
-        {  LIFT, { .lift  = { .liftState =  MoveDown, .time = 1.5, .blockCommands = true  } } },
-        {  WAIT, { .wait = { .time  = 2.0  } } },
+        {  LIFT, { .lift  = { .liftState =  MoveUp, .time = 2.0, .blockCommands = true  } } },
+        {  WAIT, { .wait = { .time  = 3.0  } } },
         { FINISHED },
     };
 
@@ -1197,8 +1196,8 @@ private:
     // Competition Autonomous Modes
     // *****************************************************************************************************
 
-    double const LiftTimeToScaleHeight  = 6.0; // was 8.0 and 9.0 for old motor
-    double const LiftTimeToSwitchHeight = 2.2; // was 3.5 for old motor
+    double const LiftTimeToScaleHeight  = 5.0;//  6.0; // was 8.0 and 9.0 for old motor
+    double const LiftTimeToSwitchHeight = 2.0;//  2.2; // was 3.5 for old motor
     double const TurnSpeed              = 0.3; // Maybe need to increase this.
     double const CubeOutSpeedForSwitch  = -0.7;
 
@@ -1242,9 +1241,9 @@ private:
     // Verified.
     auto_command_t const FromLeftLoadLeftScale[20] = \
     {
-        { DRIVE, { .drive = { .speed =  0.5, .time = 5.25, .blockCommands = true  } } }, // to center of scale (287.65 inches)
+        { DRIVE, { .drive = { .speed =  0.5, .time = 4.75, .blockCommands = true  } } }, // to center of scale (287.65 inches)
         {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
-        { DRIVE, { .drive = { .speed =  -0.3, .time = 0.25, .blockCommands = true  } } }, // away from scale plate
+        { DRIVE, { .drive = { .speed =  -0.3, .time = 0.48, .blockCommands = true  } } }, // away from scale plate
         {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToScaleHeight, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
         {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
@@ -1256,7 +1255,7 @@ private:
     {
         { DRIVE, { .drive = { .speed =  0.5, .time = 5.25, .blockCommands = true  } } }, // to center of scale (287.65 inches)
         {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
-        { DRIVE, { .drive = { .speed =  -0.3, .time = 0.25, .blockCommands = true  } } }, // away from scale plate
+        { DRIVE, { .drive = { .speed =  -0.5, .time = 0.25, .blockCommands = true  } } }, // away from scale plate
         {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToScaleHeight, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
         {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
@@ -1886,7 +1885,7 @@ private:
     {
          SetCubeLiftState(
              liftState,
-             1.0
+             0.6
          );
     }
 

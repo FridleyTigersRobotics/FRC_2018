@@ -1245,6 +1245,7 @@ private:
         {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = 90.0 } } },
         { DRIVE, { .drive = { .speed =  -0.3, .time = 0.48, .blockCommands = true  } } }, // away from scale plate
         {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToScaleHeight, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
+        { DRIVE, { .drive = { .speed =  0.3, .time = 0.48, .blockCommands = true  } } },
         {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
    };
@@ -1253,10 +1254,17 @@ private:
     // Semi-verified. Copied from FromLeftLoadLeftScale, changed turn direction
     auto_command_t const FromRightLoadRightScale[20] = \
     {
-        { DRIVE, { .drive = { .speed =  0.5, .time = 5.25, .blockCommands = true  } } }, // to center of scale (287.65 inches)
+        //{ DRIVE, { .drive = { .speed =  0.5, .time = 5.25, .blockCommands = true  } } }, // to center of scale (287.65 inches)
+        //{  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
+        //{ DRIVE, { .drive = { .speed =  -0.5, .time = 0.25, .blockCommands = true  } } }, // away from scale plate
+        //{  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToScaleHeight, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
+        //{  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
+
+        { DRIVE, { .drive = { .speed =  0.5, .time = 4.75, .blockCommands = true  } } }, // to center of scale (287.65 inches)
         {  TURN, { .turn  = { .speed =  TurnSpeed, .angle = -90.0 } } },
-        { DRIVE, { .drive = { .speed =  -0.5, .time = 0.25, .blockCommands = true  } } }, // away from scale plate
+        { DRIVE, { .drive = { .speed =  -0.3, .time = 0.48, .blockCommands = true  } } }, // away from scale plate
         {  LIFT, { .lift  = { .liftState =  MoveUp, .time = LiftTimeToScaleHeight, .blockCommands = true  } } }, // lift all the way up to scale: WILL TAKE A LONG FRICKEN TIME
+        { DRIVE, { .drive = { .speed =  0.3, .time = 0.48, .blockCommands = true  } } },
         {  CUBE, { .cube  = { .speed =  -1.0, .time = 1.5, .blockCommands = false } } },
         { FINISHED },
    };

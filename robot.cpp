@@ -659,7 +659,7 @@ private:
         double       liftSpeed
     )
     {
-        bool const debugCubeLift = true;
+        bool const debugCubeLift = false;
         bool const debugLiftEncoder = true;
         bool const useSimpleLiftControl = false;
 
@@ -687,7 +687,7 @@ private:
             double cubeLiftMotorSpeed;
 
             // Value of the limiter is nominally one, and zero when limit is hit.
-            bool const atBotLimitLift = (liftLimiterBot.Get() == 0);
+            bool const atBotLimitLift = ( currentLiftPosition <= 1000 );//(liftLimiterBot.Get() == 0);
 
             // Update this limit for the new motor/encoder.
             int const liftPositionLimit = 217000;//2018;
